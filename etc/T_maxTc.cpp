@@ -1,4 +1,4 @@
-#include "../utility.h"
+#include "../utility.hpp"
 
 double f(double* Js, double temperature) {
   return exp(-2.0 * Js[0] / temperature) * exp(-2.0 * Js[1] / temperature) +

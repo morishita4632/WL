@@ -1,4 +1,4 @@
-#include "../utility.h"
+#include "../utility.hpp"
 
 double f(double* Js, double temperature) {
   return tanh(Js[0] / temperature) * tanh(Js[1] / temperature) +
