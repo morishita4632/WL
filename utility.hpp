@@ -17,6 +17,17 @@ static inline double* alloc_dvector(int n) {
   return vec;
 }
 
+/* allocate vector of int */
+static inline int* alloc_ivector(int n) {
+  int* vec;
+  vec = (int*)calloc(n, sizeof(int));
+  if (vec == NULL) {
+    fprintf(stderr, "Error: allocation failed in alloc_ivector\n");
+    exit(1);
+  }
+  return vec;
+}
+
 static inline double rand01() {
   return (double)(mt()) / (double)(mt.max());
 }

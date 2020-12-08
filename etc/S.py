@@ -112,7 +112,6 @@ while f > min_f:
     hist = np.zeros(bins)
     f /= 2.0
 
-notify()
 
 l = 000
 r = l+1000
@@ -132,10 +131,6 @@ ax.set_xlim(xlim)
 ax.set_ylabel("ln(g)")
 fig.show()
 
-if False:
-    np.save(p("%s_S.npy" % (S.id)), S_s)
-
-S_s = np.load(p("%s_S.npy" % (S.id)))
 
 interval = 1000
 samples = 10000
