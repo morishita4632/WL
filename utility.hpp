@@ -28,6 +28,25 @@ static inline int* alloc_ivector(int n) {
   return vec;
 }
 
+/* allocate m x n row-major matrix of double */
+static inline double** alloc_dmatrix(int m, int n) {
+  int i;
+  double** mat;
+  mat = (double**)malloc((size_t)(m * sizeof(double*)));
+  if (mat == NULL) {
+    fprintf(stderr, "Error: allocation failed in alloc_dmatrix\n");
+    exit(1);
+  }
+  mat[0] = (double*)calloc(m * n, sizeof(double));
+  if (mat[0] == NULL) {
+    fprintf(stderr, "Error: allocation failed in alloc_dmatrix\n");
+    exit(1);
+  }
+  for (i = 1; i < m; ++i)
+    mat[i] = mat[i - 1] + n;
+  return mat;
+}
+
 static inline double rand01() {
   return (double)(mt()) / (double)(mt.max());
 }

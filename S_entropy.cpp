@@ -1,68 +1,24 @@
 #include <vector>
-#include "utility.hpp"
-
-double EPS = 1e-12;
-
-double f(const double* Js, const double temperature) {
-  return sinh(2.0 * Js[0] / temperature) * sinh(2.0 * Js[1] / temperature) -
-         1.0;
-}
-
-void normalize(double* Js) {
-  double sum = 0.0;
-  for (int i = 0; i < 2; i++)
-    sum += Js[i];
-  for (int i = 0; i < 2; i++)
-    Js[i] /= sum * 2.0;
-}
-
-void k_to_Js(double k, double* Js) {
-  Js[0] = 1.0, Js[1] = exp(k);
-  normalize(Js);
-}
-
-double Js_to_Tc(const double* Js) {
-  double l = 0.01, r = 0.567296328553, c;
-  while (r - l > EPS) {
-    c = (r + l) / 2.0;
-    (f(Js, c) > 0 ? l : r) = c;
-  }
-  return (l + r) / 2.0;
-}
-
-int Tc_to_ind(double Tc, double Tc_min, double bin_width, double bins) {
-  int ind = (int)((Tc - Tc_min) / bin_width + 0.5);
-  if (ind < 0 || ind >= bins)
-    ind = -1;
-  return ind;
-}
-
-bool is_flat(const int* hist, int bins, double flat_coeff) {
-  double ave = 0.0;
-  for (int i = 0; i < bins; i++)
-    ave += (double)hist[i] / (double)bins;
-  bool flat = true;
-  for (int i = 0; i < bins; i++)
-    flat &= (hist[i] > ave * flat_coeff);
-  return flat;
-}
-
-double exp1(double cS, double nS) {
-  return (cS - nS > 0) ? 1.0 : exp(cS - nS);
-}
+#include "S.hpp"
 
 int main() {
   START(1);
 
   int bins = 100;
   double Tc_min = 0.1, Tc_max = 0.567296328553;
-  double f_min = 1e-9;
-  double k_init = 1.0;
-  double flat_coeff = 0.8;
+  double EPS = 1e-12;
   double RW_step = 1.0;
+  double k_init = 1.0;
+
+  double flat_coeff = 0.8;
+  double f_min = 1e-9;
 
   int* hist = alloc_ivector(bins);
   double* S_s = alloc_dvector(bins);
+  for (int i = 0; i < bins; i++) {
+    hist[i] = 0, S_s[i] = 0.0;
+  }
+
   vector<double> Tc_s, k_s;
   vector<vector<double>> Js_s(0, vector<double>(2));
 
@@ -70,12 +26,9 @@ int main() {
   double ck = k_init, dk, nk;
   double cJs[2], nJs[2];
   k_to_Js(ck, cJs);
-  double cTc = Js_to_Tc(cJs), nTc;
+  double cTc = Js_to_Tc(cJs, EPS), nTc;
   int cind = Tc_to_ind(cTc, Tc_min, bin_width, bins), nind;
   double f = 1.0;
-  for (int i = 0; i < bins; i++) {
-    hist[i] = 0, S_s[i] = 0.0;
-  }
 
   int CNT = 0;
   int MAX_CNT = 100000000;
@@ -85,7 +38,7 @@ int main() {
       dk = (rand01() * 2 - 1) * RW_step;
       nk = ck + dk;
       k_to_Js(nk, nJs);
-      nTc = Js_to_Tc(nJs);
+      nTc = Js_to_Tc(nJs, EPS);
       nind = Tc_to_ind(nTc, Tc_min, bin_width, bins);
       if (nind != -1 && rand01() <= exp1(S_s[cind], S_s[nind])) {
         ck = nk, cTc = nTc, cind = nind;
@@ -106,7 +59,18 @@ int main() {
     printf("%.12f\n", f);
   }
 
+  // Write to file.
+  FILE* fp = fopen("S_entropy.dat", "w");
+  fprintf(fp, "%d\n", bins);
+  fprintf(fp, "%.12f %.12f\n", Tc_min, Tc_max);
+  fprintf(fp, "%.12f\n", EPS);
+  fprintf(fp, "%.12f\n", RW_step);
+  fprintf(fp, "%.12f\n", k_init);
+  for (int i = 0; i < bins; i++)
+    fprintf(fp, "%.12f\n", S_s[i]);
+  fclose(fp);
 
+  // Visualize
   double x;
   int y;
   FILE* gp;
@@ -124,25 +88,24 @@ int main() {
     }
     fprintf(gp, "e\n");
     pclose(gp);
+
+    gp = popen("gnuplot -persist", "w");
+    fprintf(gp, "plot '-' w l title \"Tc\" \n");
+    for (int i = 0; i < Tc_s.size(); i += 10) {
+      fprintf(gp, "%d %.12f \n", i + 1, Tc_s[i]);
+    }
+    fprintf(gp, "e\n");
+    pclose(gp);
+
+
+    gp = popen("gnuplot -persist", "w");
+    fprintf(gp, "plot '-' w l title \"k\" \n");
+    for (int i = 0; i < k_s.size(); i += 10) {
+      fprintf(gp, "%d %.12f \n", i + 1, k_s[i]);
+    }
+    fprintf(gp, "e\n");
+    pclose(gp);
   }
-
-  gp = popen("gnuplot -persist", "w");
-  fprintf(gp, "plot '-' w l title \"Tc\" \n");
-  for (int i = 0; i < Tc_s.size(); i += 10) {
-    fprintf(gp, "%d %.12f \n", i + 1, Tc_s[i]);
-  }
-  fprintf(gp, "e\n");
-  pclose(gp);
-
-
-  gp = popen("gnuplot -persist", "w");
-  fprintf(gp, "plot '-' w l title \"k\" \n");
-  for (int i = 0; i < k_s.size(); i += 10) {
-    fprintf(gp, "%d %.12f \n", i + 1, k_s[i]);
-  }
-  fprintf(gp, "e\n");
-  pclose(gp);
-
 
   END();
 }
