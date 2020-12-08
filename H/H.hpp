@@ -1,4 +1,4 @@
-#include "utility.hpp"
+#include "../utility.hpp"
 
 static inline double f(const double* Js, double temperature) {
   return tanh(Js[0] / temperature) * tanh(Js[1] / temperature) +

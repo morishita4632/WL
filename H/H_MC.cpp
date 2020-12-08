@@ -1,5 +1,5 @@
 #include <vector>
-#include "S.hpp"
+#include "H.hpp"
 
 int main() {
   START(1);
@@ -9,16 +9,17 @@ int main() {
 
   int bins;
   double Tc_min, Tc_max;
-  double EPS, RW_step, k_init;
+  double EPS, RW_step;
+  double k_init[2];
 
   // Read file
   int dummy;
-  FILE* fp = fopen("S_entropy.dat", "r");
+  FILE* fp = fopen("H_entropy.dat", "r");
   dummy = fscanf(fp, "%d", &bins);
   dummy = fscanf(fp, "%lf %lf", &Tc_min, &Tc_max);
   dummy = fscanf(fp, "%lf", &EPS);
   dummy = fscanf(fp, "%lf", &RW_step);
-  dummy = fscanf(fp, "%lf", &k_init);
+  dummy = fscanf(fp, "%lf %lf", &k_init[0], &k_init[1]);
 
   double* S_s = alloc_dvector(bins);
   for (int i = 0; i < bins; i++)
@@ -30,31 +31,34 @@ int main() {
   for (int i = 0; i < bins; i++)
     hist[i] = 0;
   double* Tc_s = alloc_dvector(samples);
-  double** Js_s = alloc_dmatrix(samples, 2);
+  double** Js_s = alloc_dmatrix(samples, 3);
 
   double bin_width = (Tc_max - Tc_min) / (double)bins;
-  double ck = k_init, dk, nk;
-  double cJs[2], nJs[2];
-  k_to_Js(ck, cJs);
+  double cks[2], dks[2], nks[2];
+  cks[0] = k_init[0], cks[1] = k_init[1];
+  double cJs[3], nJs[3];
+  ks_to_Js(cks, cJs);
   double cTc = Js_to_Tc(cJs, EPS), nTc;
   int cind = Tc_to_ind(cTc, Tc_min, bin_width, bins), nind;
 
   // Iteration
   for (int i = 0; i < samples; i++) {
     for (int _ = 0; _ < interval; _++) {
-      dk = (rand01() * 2 - 1) * RW_step;
-      nk = ck + dk;
-      k_to_Js(nk, nJs);
+      dks[0] = (rand01() * 2 - 1) * RW_step;
+      dks[1] = (rand01() * 2 - 1) * RW_step;
+      nks[0] = cks[0] + dks[0];
+      nks[1] = cks[1] + dks[1];
+      ks_to_Js(nks, nJs);
       nTc = Js_to_Tc(nJs, EPS);
       nind = Tc_to_ind(nTc, Tc_min, bin_width, bins);
       if (nind != -1 && rand01() <= exp1(S_s[cind], S_s[nind])) {
-        ck = nk, cTc = nTc, cind = nind;
-        for (int j = 0; j < 2; j++)
+        cks[0] = nks[0], cks[1] = nks[1], cTc = nTc, cind = nind;
+        for (int j = 0; j < 3; j++)
           cJs[j] = nJs[j];
       }
     }
     Tc_s[i] = cTc;
-    for (int j = 0; j < 2; j++)
+    for (int j = 0; j < 3; j++)
       Js_s[i][j] = cJs[j];
     hist[cind]++;
 
@@ -66,12 +70,12 @@ int main() {
   printf("\n");
 
   // Write to file
-  fp = fopen("../data/S_Js.dat", "w");
+  fp = fopen("../data/H_Js.dat", "w");
   for (int i = 0; i < samples; i++) {
-    fprintf(fp, "%.12f\t%.12f\n", Js_s[i][0], Js_s[i][1]);
+    fprintf(fp, "%.12f\t%.12f\t%.12f\n", Js_s[i][0], Js_s[i][1], Js_s[i][3]);
   }
 
-  fp = fopen("../data/S_Tc.dat", "w");
+  fp = fopen("../data/H_Tc.dat", "w");
   for (int i = 0; i < samples; i++) {
     fprintf(fp, "%.12f\n", Tc_s[i]);
   }
@@ -84,7 +88,7 @@ int main() {
 
   FILE* gp = popen("gnuplot -persist", "w");
   fprintf(gp, "set terminal pdfcairo color enhanced size 4in, 3in\n");
-  fprintf(gp, "set output '../data/S_hist.pdf'\n");
+  fprintf(gp, "set output '../data/H_hist.pdf'\n");
   fprintf(gp, "set style fill solid border lc rgb \"black\"\n");
   fprintf(gp, "set xrange [%f:%f]\n", Tc_min - 0.02, Tc_max + 0.02);
   fprintf(gp, "set yrange [0:%f]\n", ymax);
