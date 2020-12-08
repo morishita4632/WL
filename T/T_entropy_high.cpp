@@ -1,14 +1,16 @@
 #include <vector>
-#include "S.hpp"
+#include "T.hpp"
 
 int main() {
-  START(5);
+  START();
 
-  int bins = 100;
-  double Tc_min = 0.1, Tc_max = 0.567296328554;
+  double S_Tc_max = 0.567296328553;
+
+  int bins = 30;
+  double Tc_min = S_Tc_max + 0.002, Tc_max = 0.606826151086;
   double EPS = 1e-12;
-  double RW_step = 4.0;
-  double k_init = 1.0;
+  double RW_step = 0.4;
+  double k_init[2] = {0.0, 0.0};
 
   double flat_coeff = 0.9;
   double f_min = 1e-9;
@@ -19,34 +21,37 @@ int main() {
     hist[i] = 0, S_s[i] = 0.0;
   }
 
-  vector<double> Tc_s, k_s;
-  vector<vector<double>> Js_s(0, vector<double>(2));
+  vector<double> Tc_s;
+  vector<vector<double>> Js_s(0, vector<double>(3)), ks_s(0, vector<double>(2));
 
   double bin_width = (Tc_max - Tc_min) / (double)bins;
-  double ck = k_init, dk, nk;
-  double cJs[2], nJs[2];
-  k_to_Js(ck, cJs);
+  double cks[2], dks[2], nks[2];
+  cks[0] = k_init[0], cks[1] = k_init[1];
+  double cJs[3], nJs[3];
+  ks_to_Js(cks, cJs);
   double cTc = Js_to_Tc(cJs, EPS), nTc;
   int cind = Tc_to_ind(cTc, Tc_min, bin_width, bins), nind;
   double f = 1.0;
 
   int CNT = 0;
-  int MAX_CNT = 100000000;
+  int MAX_CNT = 5000000;
   while (f > f_min) {
     do {
       CNT++;
-      dk = (rand01() * 2 - 1) * RW_step;
-      nk = ck + dk;
-      k_to_Js(nk, nJs);
+      dks[0] = (rand01() * 2 - 1) * RW_step;
+      dks[1] = (rand01() * 2 - 1) * RW_step;
+      nks[0] = cks[0] + dks[0];
+      nks[1] = cks[1] + dks[1];
+      ks_to_Js(nks, nJs);
       nTc = Js_to_Tc(nJs, EPS);
       nind = Tc_to_ind(nTc, Tc_min, bin_width, bins);
       if (nind != -1 && rand01() <= exp1(S_s[cind], S_s[nind])) {
-        ck = nk, cTc = nTc, cind = nind;
-        for (int i = 0; i < 2; i++)
+        cks[0] = nks[0], cks[1] = nks[1], cTc = nTc, cind = nind;
+        for (int i = 0; i < 3; i++)
           cJs[i] = nJs[i];
       }
-      Tc_s.push_back(cTc), Js_s.push_back({cJs[0], cJs[1]});
-      k_s.push_back(ck);
+      Tc_s.push_back(cTc), Js_s.push_back({cJs[0], cJs[1], cJs[2]});
+      ks_s.push_back({cks[0], cks[1]});
       hist[cind]++, S_s[cind] += f;
       if (CNT >= MAX_CNT)
         break;
@@ -61,12 +66,12 @@ int main() {
   cout << CNT << endl;
 
   // Write to file.
-  FILE* fp = fopen("S_entropy.dat", "w");
+  FILE* fp = fopen("T_entropy_high.dat", "w");
   fprintf(fp, "%d\n", bins);
   fprintf(fp, "%.12f %.12f\n", Tc_min, Tc_max);
   fprintf(fp, "%.12f\n", EPS);
   fprintf(fp, "%.12f\n", RW_step);
-  fprintf(fp, "%.12f\n", k_init);
+  fprintf(fp, "%.12f %.12f\n", k_init[0], k_init[1]);
   for (int i = 0; i < bins; i++)
     fprintf(fp, "%.12f\n", S_s[i]);
   fclose(fp);
@@ -104,9 +109,13 @@ int main() {
 
 
   gp = popen("gnuplot -persist", "w");
-  fprintf(gp, "plot '-' w l title \"k\" \n");
-  for (int i = 0; i < k_s.size(); i += 1000) {
-    fprintf(gp, "%d %.12f \n", i + 1, k_s[i]);
+  fprintf(gp, "plot '-' w l title \"k_1\", '-' w l title \"k_2\" \n");
+  for (int i = 0; i < ks_s.size(); i += 1000) {
+    fprintf(gp, "%d %.12f \n", i + 1, ks_s[i][0]);
+  }
+  fprintf(gp, "e\n");
+  for (int i = 0; i < ks_s.size(); i += 1000) {
+    fprintf(gp, "%d %.12f \n", i + 1, ks_s[i][1]);
   }
   fprintf(gp, "e\n");
   pclose(gp);

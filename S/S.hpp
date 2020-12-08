@@ -29,7 +29,7 @@ static inline double Js_to_Tc(const double* Js, double EPS) {
 
 static inline int Tc_to_ind(double Tc, double Tc_min, double bin_width,
                             double bins) {
-  int ind = (int)((Tc - Tc_min) / bin_width + 0.5);
+  int ind = (int)((Tc - Tc_min) / bin_width);
   if (ind < 0 || ind >= bins)
     ind = -1;
   return ind;

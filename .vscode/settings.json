@@ -2,6 +2,10 @@
   "files.associations": {
     "*.ipp": "cpp",
     "bitset": "cpp",
-    "set": "cpp"
-  }
+    "set": "cpp",
+    "ostream": "cpp"
+  },
+  "code-runner.executorMap": {
+    "cpp": "cd $dir && rm -f a.out && g++ -O3 -std=c++1z \"$fileName\" && ./a.out"
+  },
 }

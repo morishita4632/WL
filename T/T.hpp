@@ -1,9 +1,10 @@
 #include "../utility.hpp"
 
 static inline double f(const double* Js, double temperature) {
-  return tanh(Js[0] / temperature) * tanh(Js[1] / temperature) +
-         tanh(Js[1] / temperature) * tanh(Js[2] / temperature) +
-         tanh(Js[2] / temperature) * tanh(Js[0] / temperature) - 1.0;
+  return exp(-2.0 * Js[0] / temperature) * exp(-2.0 * Js[1] / temperature) +
+         exp(-2.0 * Js[1] / temperature) * exp(-2.0 * Js[2] / temperature) +
+         exp(-2.0 * Js[2] / temperature) * exp(-2.0 * Js[0] / temperature) -
+         1.0;
 }
 
 static inline void normalize(double* Js) {
@@ -11,7 +12,7 @@ static inline void normalize(double* Js) {
   for (int i = 0; i < 3; i++)
     sum += Js[i];
   for (int i = 0; i < 3; i++)
-    Js[i] /= sum;
+    Js[i] /= sum * 2.0;
 }
 
 static inline void ks_to_Js(const double* ks, double* Js) {
@@ -20,10 +21,10 @@ static inline void ks_to_Js(const double* ks, double* Js) {
 }
 
 static inline double Js_to_Tc(const double* Js, double EPS) {
-  double l = 0.01, r = 0.506217145001, c;
+  double l = 0.01, r = 0.606826151086, c;
   while (r - l > EPS) {
     c = (r + l) / 2.0;
-    (f(Js, c) > 0 ? l : r) = c;
+    (f(Js, c) > 0 ? r : l) = c;
   }
   return (l + r) / 2.0;
 }
