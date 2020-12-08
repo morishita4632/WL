@@ -2,15 +2,15 @@
 #include "S.hpp"
 
 int main() {
-  START(1);
+  START(5);
 
   int bins = 100;
-  double Tc_min = 0.1, Tc_max = 0.567296328553;
+  double Tc_min = 0.1, Tc_max = 0.567296328554;
   double EPS = 1e-12;
-  double RW_step = 1.0;
+  double RW_step = 4.0;
   double k_init = 1.0;
 
-  double flat_coeff = 0.8;
+  double flat_coeff = 0.9;
   double f_min = 1e-9;
 
   int* hist = alloc_ivector(bins);
@@ -58,6 +58,7 @@ int main() {
     f /= 2.0;
     printf("%.12f\n", f);
   }
+  cout << CNT << endl;
 
   // Write to file.
   FILE* fp = fopen("S_entropy.dat", "w");
@@ -71,41 +72,55 @@ int main() {
   fclose(fp);
 
   // Visualize
-  double x;
-  int y;
-  FILE* gp;
+  double x, y, ymax = 0.0;
+  for (int i = 0; i < bins; i++)
+    ymax = max(ymax, (double)hist[i]);
+  ymax *= 1.1;
 
+  FILE* gp;
   if (f > f_min) {
     gp = popen("gnuplot -persist", "w");
     fprintf(gp, "set style fill solid border lc rgb \"black\"\n");
     fprintf(gp, "set xrange [%f:%f]\n", Tc_min, Tc_max);
+    fprintf(gp, "set yrange [0:%f]\n", ymax);
     fprintf(gp, "set boxwidth %f\n", bin_width);
     fprintf(gp, "plot '-' with boxes title \"hist\"\n");
     for (int i = 0; i < bins; i++) {
       x = Tc_min + (i + 0.5) * bin_width;
       y = hist[i];
-      fprintf(gp, "%.12f %d \n", x, y);
-    }
-    fprintf(gp, "e\n");
-    pclose(gp);
-
-    gp = popen("gnuplot -persist", "w");
-    fprintf(gp, "plot '-' w l title \"Tc\" \n");
-    for (int i = 0; i < Tc_s.size(); i += 10) {
-      fprintf(gp, "%d %.12f \n", i + 1, Tc_s[i]);
-    }
-    fprintf(gp, "e\n");
-    pclose(gp);
-
-
-    gp = popen("gnuplot -persist", "w");
-    fprintf(gp, "plot '-' w l title \"k\" \n");
-    for (int i = 0; i < k_s.size(); i += 10) {
-      fprintf(gp, "%d %.12f \n", i + 1, k_s[i]);
+      fprintf(gp, "%.12f %.1f \n", x, y);
     }
     fprintf(gp, "e\n");
     pclose(gp);
   }
+
+  gp = popen("gnuplot -persist", "w");
+  fprintf(gp, "plot '-' w l title \"Tc\" \n");
+  for (int i = 0; i < Tc_s.size(); i += 10) {
+    fprintf(gp, "%d %.12f \n", i + 1, Tc_s[i]);
+  }
+  fprintf(gp, "e\n");
+  pclose(gp);
+
+
+  gp = popen("gnuplot -persist", "w");
+  fprintf(gp, "plot '-' w l title \"k\" \n");
+  for (int i = 0; i < k_s.size(); i += 10) {
+    fprintf(gp, "%d %.12f \n", i + 1, k_s[i]);
+  }
+  fprintf(gp, "e\n");
+  pclose(gp);
+
+
+  gp = popen("gnuplot -persist", "w");
+  fprintf(gp, "plot '-' w l title \"S\" \n");
+  for (int i = 0; i < bins; i++) {
+    x = Tc_min + (i + 0.5) * bin_width;
+    y = S_s[i];
+    fprintf(gp, "%.12f %.12f \n", x, y);
+  }
+  fprintf(gp, "e\n");
+  pclose(gp);
 
   END();
 }
