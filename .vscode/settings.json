@@ -3,7 +3,8 @@
     "*.ipp": "cpp",
     "bitset": "cpp",
     "set": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "*.tcc": "cpp"
   },
   "code-runner.executorMap": {
     "cpp": "cd $dir && rm -f a.out && g++ -O3 -std=c++1z \"$fileName\" && ./a.out"
