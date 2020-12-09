@@ -58,7 +58,7 @@ int main() {
   // Write to file
   FILE* fp = fopen("../data/T_Js.dat", "w");
   for (int i = 0; i < samples; i++) {
-    fprintf(fp, "%.12f\t%.12f\t%.12f\n", Js_s[i][0], Js_s[i][1], Js_s[i][3]);
+    fprintf(fp, "%.12f\t%.12f\t%.12f\n", Js_s[i][0], Js_s[i][1], Js_s[i][2]);
   }
 
   fp = fopen("../data/T_Tc.dat", "w");
