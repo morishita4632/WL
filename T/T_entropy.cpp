@@ -12,8 +12,8 @@ int main() {
   double Js_sum = 0.5;
   double J_init[2] = {0.17, 0.17};
 
-  double flat_coeff = 0.9;
-  double f_min = 1e-9;
+  double flat_coeff = 0.8;
+  double f_min = 1e-8;
 
   int* hist = alloc_ivector(bins);
   double* S_s = alloc_dvector(bins);
@@ -21,8 +21,8 @@ int main() {
     hist[i] = 0, S_s[i] = 0.0;
   }
 
-  vector<double> Tc_s;
-  vector<vector<double>> Js_s(0, vector<double>(3));
+  // vector<double> Tc_s;
+  // vector<vector<double>> Js_s(0, vector<double>(3));
 
   double bin_width = (Tc_max - Tc_min) / (double)bins;
   double cJs[3], nJs[3];
@@ -51,7 +51,7 @@ int main() {
         for (int i = 0; i < 3; i++)
           cJs[i] = nJs[i];
       }
-      Tc_s.push_back(cTc), Js_s.push_back({cJs[0], cJs[1], cJs[2]});
+      // Tc_s.push_back(cTc), Js_s.push_back({cJs[0], cJs[1], cJs[2]});
       hist[cind]++, S_s[cind] += f;
       if (CNT >= MAX_CNT)
         break;
@@ -99,13 +99,13 @@ int main() {
     pclose(gp);
   }
 
-  gp = popen("gnuplot -persist", "w");
-  fprintf(gp, "plot '-' w l title \"Tc\" \n");
-  for (int i = 0; i < Tc_s.size(); i += 1000) {
-    fprintf(gp, "%d %.12f \n", i + 1, Tc_s[i]);
-  }
-  fprintf(gp, "e\n");
-  pclose(gp);
+  // gp = popen("gnuplot -persist", "w");
+  // fprintf(gp, "plot '-' w l title \"Tc\" \n");
+  // for (int i = 0; i < Tc_s.size(); i += 1000) {
+  //   fprintf(gp, "%d %.12f \n", i + 1, Tc_s[i]);
+  // }
+  // fprintf(gp, "e\n");
+  // pclose(gp);
 
   gp = popen("gnuplot -persist", "w");
   fprintf(gp, "plot '-' w l title \"S\" \n");

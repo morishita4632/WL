@@ -21,6 +21,8 @@ static inline void ks_to_Js(const double* ks, double* Js) {
 }
 
 static inline double Js_to_Tc(const double* Js, double EPS) {
+  if (Js[0] < 0 || Js[1] < 0 || Js[2] < 0)
+    return -1.0;
   double l = 0.01, r = 0.606826151086, c;
   while (r - l > EPS) {
     c = (r + l) / 2.0;

@@ -5,7 +5,9 @@
     "set": "cpp",
     "ostream": "cpp",
     "*.tcc": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "deque": "cpp",
+    "string": "cpp"
   },
   "code-runner.executorMap": {
     "cpp": "cd $dir && rm -f a.out && g++ -O3 -std=c++1z \"$fileName\" && ./a.out"

@@ -72,12 +72,12 @@ int main() {
   printf("\n");
 
   // Write to file
-  fp = fopen("../data_test/T_Js.dat", "w");
+  fp = fopen("../data/T_Js.dat", "w");
   for (int i = 0; i < samples; i++) {
     fprintf(fp, "%.12f\t%.12f\t%.12f\n", Js_s[i][0], Js_s[i][1], Js_s[i][2]);
   }
 
-  fp = fopen("../data_test/T_Tc.dat", "w");
+  fp = fopen("../data/T_Tc.dat", "w");
   for (int i = 0; i < samples; i++) {
     fprintf(fp, "%.12f\n", Tc_s[i]);
   }
@@ -90,7 +90,7 @@ int main() {
 
   FILE* gp = popen("gnuplot -persist", "w");
   fprintf(gp, "set terminal pdfcairo color enhanced size 4in, 3in\n");
-  fprintf(gp, "set output '../data_test/T_hist.pdf'\n");
+  fprintf(gp, "set output '../data/T_hist.pdf'\n");
   fprintf(gp, "set style fill solid border lc rgb \"black\"\n");
   fprintf(gp, "set xrange [%f:%f]\n", Tc_min - 0.02, Tc_max + 0.02);
   fprintf(gp, "set yrange [0:%f]\n", ymax);
