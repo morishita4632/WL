@@ -1,5 +1,5 @@
 #include <vector>
-#include "T.hpp"
+#include "H.hpp"
 
 int main() {
   START(1);
@@ -11,11 +11,11 @@ int main() {
   double Tc_min, Tc_max;
   double EPS, RW_step;
   double J_init[2];
-  double Js_sum = 0.5;
+  double Js_sum = 1.0;
 
   // Read file
   int dummy;
-  FILE* fp = fopen("T_entropy.dat", "r");
+  FILE* fp = fopen("H_entropy.dat", "r");
   dummy = fscanf(fp, "%d", &bins);
   dummy = fscanf(fp, "%lf %lf", &Tc_min, &Tc_max);
   dummy = fscanf(fp, "%lf", &EPS);
@@ -72,12 +72,12 @@ int main() {
   printf("\n");
 
   // Write to file
-  fp = fopen("../data/T_Js.dat", "w");
+  fp = fopen("../data/H_Js.dat", "w");
   for (int i = 0; i < samples; i++) {
     fprintf(fp, "%.12f\t%.12f\t%.12f\n", Js_s[i][0], Js_s[i][1], Js_s[i][2]);
   }
 
-  fp = fopen("../data/T_Tc.dat", "w");
+  fp = fopen("../data/H_Tc.dat", "w");
   for (int i = 0; i < samples; i++) {
     fprintf(fp, "%.12f\n", Tc_s[i]);
   }
@@ -90,11 +90,11 @@ int main() {
 
   FILE* gp = popen("gnuplot -persist", "w");
   fprintf(gp, "set terminal pdfcairo color enhanced size 4in, 3in\n");
-  fprintf(gp, "set output '../fig/T_hist.pdf'\n");
+  fprintf(gp, "set output '../fig/H_hist.pdf'\n");
   fprintf(gp, "set style fill solid border lc rgb \"black\"\n");
   fprintf(gp, "set xrange [%f:%f]\n", Tc_min - 0.02, Tc_max + 0.02);
   fprintf(gp, "set yrange [0:%f]\n", ymax);
-  fprintf(gp, "set xlabel \"T_c\"\n");
+  fprintf(gp, "set xlabel \"H_c\"\n");
   fprintf(gp, "set ylabel \"Frequency\"\n");
   fprintf(gp, "set boxwidth %f\n", bin_width);
   fprintf(gp, "plot '-' with boxes notitle \"hist\"\n");
