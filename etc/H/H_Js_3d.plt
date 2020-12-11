@@ -7,4 +7,4 @@ set view equal xyz
 set view 45,135,1,1
 set ticslevel 0
 set size square
-splot "../data/H_Js.dat" u 1:2:3 lc 1 ps 0.3 notitle
+splot "../data/H_Js.dat" u 1:2:3 lc 1 ps 0.1 notitle

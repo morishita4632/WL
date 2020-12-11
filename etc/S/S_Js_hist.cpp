@@ -19,9 +19,9 @@ int main() {
 
   // Read file
   FILE* fp = fopen("../data/S_Js.dat", "r");
-  int ind;
+  int ind, dummy;
   for (int i = 0; i < samples; i++) {
-    fscanf(fp, "%.12lf\t%.12lf\n", Js_s[i][0], Js_s[i][1]);
+    dummy = fscanf(fp, "%lf\t%lf\n", &Js_s[i][0], &Js_s[i][1]);
     ind = Js_s[i][0] / bin_width;
     hist[ind]++;
   }
@@ -38,7 +38,7 @@ int main() {
   fprintf(gp, "set style fill solid border lc rgb \"black\"\n");
   fprintf(gp, "set xrange [%f:%f]\n", J_min - 0.02, J_max + 0.02);
   fprintf(gp, "set yrange [0:%f]\n", ymax);
-  fprintf(gp, "set xlabel \"T_c\"\n");
+  fprintf(gp, "set xlabel \"J_1\"\n");
   fprintf(gp, "set ylabel \"Frequency\"\n");
   fprintf(gp, "set boxwidth %f\n", bin_width);
   fprintf(gp, "plot '-' with boxes notitle \"hist\"\n");
