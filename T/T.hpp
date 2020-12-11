@@ -15,11 +15,6 @@ static inline void normalize(double* Js) {
     Js[i] /= sum * 2.0;
 }
 
-static inline void ks_to_Js(const double* ks, double* Js) {
-  Js[0] = 1.0, Js[1] = exp(ks[0]), Js[2] = exp(ks[1]);
-  normalize(Js);
-}
-
 static inline double Js_to_Tc(const double* Js, double EPS) {
   if (Js[0] < 0 || Js[1] < 0 || Js[2] < 0)
     return -1.0;
