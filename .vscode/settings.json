@@ -4,7 +4,8 @@
     "bitset": "cpp",
     "set": "cpp",
     "ostream": "cpp",
-    "*.tcc": "cpp"
+    "*.tcc": "cpp",
+    "vector": "cpp"
   },
   "code-runner.executorMap": {
     "cpp": "cd $dir && rm -f a.out && g++ -O3 -std=c++1z \"$fileName\" && ./a.out"
