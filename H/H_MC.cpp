@@ -94,7 +94,7 @@ int main() {
   fprintf(gp, "set style fill solid border lc rgb \"black\"\n");
   fprintf(gp, "set xrange [%f:%f]\n", Tc_min - 0.02, Tc_max + 0.02);
   fprintf(gp, "set yrange [0:%f]\n", ymax);
-  fprintf(gp, "set xlabel \"H_c\"\n");
+  fprintf(gp, "set xlabel \"T_c\"\n");
   fprintf(gp, "set ylabel \"Frequency\"\n");
   fprintf(gp, "set boxwidth %f\n", bin_width);
   fprintf(gp, "plot '-' with boxes notitle \"hist\"\n");
