@@ -1,5 +1,5 @@
 #include <vector>
-#include "H.hpp"
+#include "S.hpp"
 
 int main() {
   START(1);
@@ -11,14 +11,14 @@ int main() {
 
   // Read file
   int dummy;
-  FILE* fp = fopen("H_entropy.dat", "r");
+  FILE* fp = fopen("S_entropy.dat", "r");
   dummy = fscanf(fp, "%d", &bins);
   dummy = fscanf(fp, "%lf %lf", &Tc_min, &Tc_max);
   fclose(fp);
 
   double bin_width = (Tc_max - Tc_min) / (double)bins;
 
-  fp = fopen("../data/H_Tc.dat", "r");
+  fp = fopen("../data/S_Tc.dat", "r");
   int* hist = alloc_ivector(bins);
   double Tc;
   for (int i = 0; i < samples; i++) {
@@ -35,7 +35,7 @@ int main() {
 
   FILE* gp = popen("gnuplot -persist", "w");
   fprintf(gp, "set terminal pdfcairo color enhanced size 4in, 3in\n");
-  fprintf(gp, "set output '../fig/H_hist.pdf'\n");
+  fprintf(gp, "set output '../fig/S_hist.pdf'\n");
   fprintf(gp, "set style fill solid border lc rgb \"black\"\n");
   fprintf(gp, "set xrange [%f:%f]\n", Tc_min - 0.02, Tc_max + 0.02);
   fprintf(gp, "set yrange [0:%f]\n", ymax);
